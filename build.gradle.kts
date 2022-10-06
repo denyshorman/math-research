@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.20"
     application
 }
 
@@ -10,19 +10,19 @@ repositories {
     mavenCentral()
 }
 
-val kotestVersion = "5.2.1"
+val kotestVersion = "5.5.0"
 
 dependencies {
     implementation("org.web3j:core:4.8.9")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
-    implementation("ch.qos.logback:logback-classic:1.2.11")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
+    implementation("ch.qos.logback:logback-classic:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-json:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.13.2")
 }
 
 tasks {
