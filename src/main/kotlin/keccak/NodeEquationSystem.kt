@@ -67,13 +67,20 @@ class NodeEquationSystem {
         }
     }
 
+    private fun Node.containEquals(node: Node): Boolean {
+        return when (this) {
+            is Bit, is Variable, is And -> this == node
+            is Xor -> nodes.any { it == node }
+        }
+    }
+
     fun expressNode(
         fromEqIndex: Int,
         node: Node,
         activeRows: BitSet? = null,
         varSubstituted: ((Int) -> Boolean)? = null,
     ): Boolean {
-        if (!equations[fromEqIndex].contains(node)) {
+        if (!equations[fromEqIndex].containEquals(node)) {
             return false
         }
 
@@ -89,7 +96,7 @@ class NodeEquationSystem {
         while (eqIndex < rows) {
             if (
                 (activeRows == null || activeRows[eqIndex]) &&
-                eqIndex != fromEqIndex && equations[eqIndex].contains(node)
+                eqIndex != fromEqIndex && equations[eqIndex].containEquals(node)
             ) {
                 equations[eqIndex] = equations[eqIndex] xor equations[fromEqIndex]
 
