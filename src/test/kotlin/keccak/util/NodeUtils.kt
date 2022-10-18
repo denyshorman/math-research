@@ -66,9 +66,10 @@ fun Node.printAllSolutions(
     varPrefix: String = "x",
     varsCount: Int = maxVariables(varPrefix),
     varOffset: Int = 0,
+    outputStream: OutputStream = System.out,
     condition: (NodeContext, Boolean) -> Boolean = { _, _ -> true },
 ) {
-    printAllSolutions(arrayOf(this), varPrefix, varsCount, varOffset, condition)
+    printAllSolutions(arrayOf(this), varPrefix, varsCount, varOffset, outputStream, condition)
 }
 
 fun printAllSolutions(
@@ -76,6 +77,7 @@ fun printAllSolutions(
     varPrefix: String = "x",
     varsCount: Int,
     varOffset: Int = 0,
+    outputStream: OutputStream = System.out,
     condition: (NodeContext, Boolean) -> Boolean = { _, _ -> true },
 ) {
     val iter = CombinationIteratorSimple(varsCount)
@@ -96,7 +98,7 @@ fun printAllSolutions(
             .joinToString(" ") { it.toString() }
 
         if (funcRes.isNotBlank()) {
-            println("$iter = $funcRes")
+            outputStream.write("$iter = $funcRes\n".toByteArray(Charsets.US_ASCII))
         }
 
         if (iter.hasNext()) iter.next() else break
