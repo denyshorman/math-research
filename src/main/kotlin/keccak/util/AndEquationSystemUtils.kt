@@ -219,6 +219,59 @@ fun AndEquationSystem.toFile(
     }
 }
 
+fun randomXorEquationSystem(
+    rows: Int,
+    cols: Int,
+    solutionsCount: Int? = null,
+    random: Random = Random,
+): XorEquationSystem {
+    while (true) {
+        val system = XorEquationSystem(rows, cols)
+
+        var i = 0
+        while (i < system.rows) {
+            while (true) {
+                system.equations[i].randomize(cols, random)
+
+                if (system.equations[i].setBitsCount() > 1) {
+                    break
+                }
+            }
+            i++
+        }
+
+        system.results.randomize(rows, random)
+
+        val solvedSystem = system.clone()
+        val solved = solvedSystem.solve(sortEquations = true)
+
+        if (solutionsCount == null) {
+            return system
+        } else {
+            if (solved) {
+                i = 0
+                var zeroEquationCount = 0
+                while (i < solvedSystem.rows) {
+                    if (solvedSystem.equations[i].isEmpty) {
+                        zeroEquationCount++
+                    }
+                    i++
+                }
+
+                val systemSolutionCount = solvedSystem.cols - solvedSystem.rows + zeroEquationCount + 1
+
+                if (systemSolutionCount == solutionsCount) {
+                    return system
+                }
+            } else {
+                if (solutionsCount == 0) {
+                    return system
+                }
+            }
+        }
+    }
+}
+
 fun randomAndEquationSystem(
     rows: Int,
     cols: Int,

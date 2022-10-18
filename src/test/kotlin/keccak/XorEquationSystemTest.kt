@@ -297,4 +297,43 @@ class XorEquationSystemTest : FunSpec({
             solved.shouldBeFalse()
         }
     }
+
+    context("randomXorEquationSystem") {
+        test("1") {
+            val rnd = kotlin.random.Random(1)
+
+            val randomSystem = randomXorEquationSystem(
+                rows = 5,
+                cols = 5,
+                solutionsCount = 1,
+                random = rnd,
+            )
+
+            val randomSystemActual = randomSystem.toString()
+
+            val randomSystemExpected = """
+                01111|1
+                01100|1
+                01101|1
+                10101|0
+                10010|0
+            """.trimIndent()
+
+            randomSystemActual.shouldBe(randomSystemExpected)
+
+            randomSystem.solve(sortEquations = true)
+
+            val randomSystemSolvedActual = randomSystem.toString()
+
+            val randomSystemSolvedExpected = """
+                10000|0
+                01000|1
+                00100|0
+                00010|0
+                00001|0
+            """.trimIndent()
+
+            randomSystemSolvedActual.shouldBe(randomSystemSolvedExpected)
+        }
+    }
 })
