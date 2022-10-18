@@ -173,3 +173,19 @@ fun AndEquationSystem.invertGroup(groupIndex: Int): NodeEquationSystem {
 
     return nodeEqSystem
 }
+
+fun AndEquationSystem.invertAllGroups(): NodeEquationSystem {
+    val nodeEqSystem = NodeEquationSystem(rows)
+
+    val batchCount = 1600
+    val groupsCount = rows / batchCount
+
+    var groupIndex = 0
+    while (groupIndex < groupsCount) {
+        val inverted = invertGroup(groupIndex)
+        nodeEqSystem.equations.addAll(inverted.equations)
+        groupIndex++
+    }
+
+    return nodeEqSystem
+}
