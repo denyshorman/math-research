@@ -401,6 +401,27 @@ class XorEquationSystem {
         return i
     }
 
+    fun characteristicSystem(): XorEquationSystem {
+        val system = XorEquationSystem(
+            rows = cols + 1,
+            cols = rows,
+        )
+
+        var row = 0
+        while (row < rows) {
+            equations[row].iterateOverAllSetBits { col ->
+                system.equations[col].set(row)
+            }
+            row++
+        }
+
+        results.iterateOverAllSetBits { rowIndex ->
+            system.equations[cols].set(rowIndex)
+        }
+
+        return system
+    }
+
     fun clear() {
         var i = 0
         while (i < equations.size) {

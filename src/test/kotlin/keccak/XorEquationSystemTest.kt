@@ -298,6 +298,44 @@ class XorEquationSystemTest : FunSpec({
         }
     }
 
+    context("characteristicSystem") {
+        test("1") {
+            val system = XorEquationSystem(
+                rows = 10,
+                cols = 7,
+                humanReadable = true,
+                "x0 + x2 + x3 + x6 = 1",
+                "x0 + x1 + x2 + x5 = 0",
+                "x1 + x2 + x4 + x5 + x6 = 1",
+                "x0 + x2 + x5 + x6 = 0",
+                "x3 + x5 = 1",
+                "x1 + x3 = 0",
+                "x1 + x3 + x6 = 0",
+                "x2 + x3 + x5 + x6 = 0",
+                "x1 + x3 + x5 + x6 = 1",
+                "x0 + x2 + x3 + x4 + x5 + x6 = 1",
+            )
+
+            val charSystem = system.characteristicSystem()
+
+            val charSystemExpected = XorEquationSystem(
+                rows = 7 + 1,
+                cols = 10,
+                humanReadable = true,
+                "a0 + a1 + a3 + a9 = 0",
+                "a1 + a2 + a5 + a6 + a8 = 0",
+                "a0 + a1 + a2 + a3 + a7 + a9 = 0",
+                "a0 + a4 + a5 + a6 + a7 + a8 + a9 = 0",
+                "a2 + a9 = 0",
+                "a1 + a2 + a3 + a4 + a7 + a8 + a9 = 0",
+                "a0 + a2 + a3 + a6 + a7 + a8 + a9 = 0",
+                "a0 + a2 + a4 + a8 + a9 = 0",
+            )
+
+            charSystem.shouldBe(charSystemExpected)
+        }
+    }
+
     context("randomXorEquationSystem") {
         test("1") {
             val rnd = kotlin.random.Random(1)
