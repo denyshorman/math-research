@@ -6,6 +6,8 @@ import kotlin.random.Random
 
 fun Boolean.toNumChar(): Char = if (this) '1' else '0'
 
+fun Boolean.toInt(): Int = if (this) 1 else 0
+
 fun Boolean.toBit(): Bit = Bit(this)
 
 fun randomBooleanArray(size: Int, random: Random = Random): BooleanArray {
