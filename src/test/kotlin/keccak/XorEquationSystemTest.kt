@@ -4,9 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
-import keccak.util.BitSet
-import keccak.util.XorEquationSystem
-import keccak.util.randomXorEquationSystem
+import keccak.util.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
 
@@ -330,6 +328,78 @@ class XorEquationSystemTest : FunSpec({
                 "a1 + a2 + a3 + a4 + a7 + a8 + a9 = 0",
                 "a0 + a2 + a3 + a6 + a7 + a8 + a9 = 0",
                 "a0 + a2 + a4 + a8 + a9 = 0",
+            )
+
+            charSystem.shouldBe(charSystemExpected)
+        }
+
+        test("2") {
+            val system = XorEquationSystem(
+                rows = 21,
+                cols = 5,
+                humanReadable = true,
+                "x0 + x2 = 1",
+                "x0 + x1 + x2 + x3 + x4 = 0",
+                "x1 + x3 + x4 = 0",
+                "x0 + x1 + x2 = 0",
+                "x0 + x3 = 1",
+                "x1 + x2 + x3 = 0",
+                "x2 + x3 = 0",
+                "x0 + x1 + x2 + x3 + x4 = 1",
+                "x0 + x1 + x4 = 0",
+                "x0 + x1 + x3 + x4 = 1",
+                "x0 + x1 + x2 + x3 + x4 = 0",
+                "x2 = 0",
+                "x0 + x4 = 1",
+                "x0 + x2 + x4 = 0",
+                "x2 = 0",
+                "x3 + x4 = 1",
+                "x2 + x4 = 1",
+                "x2 + x3 = 1",
+                "x0 + x1 + x2 + x3 = 0",
+                "x1 + x3 = 1",
+                "x0 + x2 = 0",
+            )
+
+            val multiplier = XorEquationSystem(
+                rows = 21,
+                cols = 6,
+                humanReadable = true,
+                "b1 + b2 = 1",
+                "b1 = 0",
+                "b2 = 0",
+                "b3 = 0",
+                "b4 = 0",
+                "b3 + b4 = 1",
+                "b1 + b2 + b4 = 1",
+                "b1 = 1",
+                "b2 + b4 = 1",
+                "b5 = 0",
+                "b1 = 0",
+                "b1 + b5 = 1",
+                "b1 + b3 + b4 = 0",
+                "b3 + b4 + b5 = 0",
+                "b1 + b5 = 1",
+                "b1 + b3 = 1",
+                "b2 + b3 + b4 = 0",
+                "b1 + b2 + b4 = 0",
+                "b2 + b3 + b4 + b5 = 0",
+                "b1 + b3 + b4 + b5 = 1",
+                "b1 + b2 = 0",
+            )
+
+            val charSystem = system.characteristicSystem(multiplier)
+
+            val charSystemExpected = XorEquationSystem(
+                rows = 6,
+                cols = 6,
+                humanReadable = true,
+                "b4 + b5 = 1",
+                "b2 + b5 = 0",
+                "b1 + b3 = 0",
+                "b1 + b5 = 1",
+                "b1 + b2 = 1",
+                "b2 + b4 = 0",
             )
 
             charSystem.shouldBe(charSystemExpected)

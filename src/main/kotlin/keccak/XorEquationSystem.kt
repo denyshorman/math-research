@@ -401,22 +401,50 @@ class XorEquationSystem {
         return i
     }
 
-    fun characteristicSystem(): XorEquationSystem {
+    fun characteristicSystem(multiplier: XorEquationSystem? = null): XorEquationSystem {
         val system = XorEquationSystem(
             rows = cols + 1,
-            cols = rows,
+            cols = multiplier?.cols ?: rows,
         )
 
-        var row = 0
-        while (row < rows) {
-            equations[row].iterateOverAllSetBits { col ->
-                system.equations[col].set(row)
+        if (multiplier == null) {
+            var row = 0
+            while (row < rows) {
+                equations[row].iterateOverAllSetBits { col ->
+                    system.equations[col].set(row)
+                }
+                row++
             }
-            row++
-        }
 
-        results.iterateOverAllSetBits { rowIndex ->
-            system.equations[cols].set(rowIndex)
+            results.iterateOverAllSetBits { rowIndex ->
+                system.equations[cols].set(rowIndex)
+            }
+        } else {
+            var row = 0
+            while (row < rows) {
+                equations[row].iterateOverAllSetBits { col0 ->
+                    multiplier.equations[row].iterateOverAllSetBits { col1 ->
+                        system.equations[col0].invertValue(col1)
+                    }
+                }
+
+                if (results[row] && multiplier.results[row]) {
+                    equations[row].iterateOverAllSetBits { col ->
+                        system.results.invertValue(col)
+                    }
+
+                    system.equations[cols].xor(multiplier.equations[row])
+                    system.results.invertValue(cols)
+                } else if (results[row]) {
+                    system.equations[cols].xor(multiplier.equations[row])
+                } else if (multiplier.results[row]) {
+                    equations[row].iterateOverAllSetBits { col ->
+                        system.results.invertValue(col)
+                    }
+                }
+
+                row++
+            }
         }
 
         return system
