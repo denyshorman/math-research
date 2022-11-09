@@ -161,6 +161,19 @@ class XorEquationSystem {
         }
     }
 
+    fun simplifyEquation(index: Int) {
+        val eqClone = equations[index].clone() as BitSet
+
+        eqClone.iterateOverAllSetBits { bitIndex ->
+            val eqIndex = varEqMap[bitIndex]
+
+            if (eqIndex != -1) {
+                equations[index].xor(equations[eqIndex])
+                results.xor(index, results[eqIndex])
+            }
+        }
+    }
+
     fun expressVariable(
         fromEqIndex: Int,
         varIndex: Int,
