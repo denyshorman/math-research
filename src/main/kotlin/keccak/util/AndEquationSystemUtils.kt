@@ -322,18 +322,30 @@ fun randomAndEquationSystem(
 }
 
 fun AndEquationSystem.toHumanString(
+    solution: BitSet? = null,
     varPrefix: String = "x",
     varOffset: Int = 0,
 ): String {
     val sb = StringBuilder()
     var i = 0
-    while (i < rows) {
-        val l = equations[i].andOpLeft.toXorString(andOpLeftResults[i], varPrefix, varOffset)
-        val r = equations[i].andOpRight.toXorString(andOpRightResults[i], varPrefix, varOffset)
-        val x = equations[i].rightXor.toXorString(rightXorResults[i], varPrefix, varOffset)
-        sb.appendLine("($l)*($r) = $x")
-        i++
+    if (solution == null) {
+        while (i < rows) {
+            val l = equations[i].andOpLeft.toXorString(andOpLeftResults[i], varPrefix, varOffset)
+            val r = equations[i].andOpRight.toXorString(andOpRightResults[i], varPrefix, varOffset)
+            val x = equations[i].rightXor.toXorString(rightXorResults[i], varPrefix, varOffset)
+            sb.appendLine("($l)*($r) = $x")
+            i++
+        }
+    } else {
+        while (i < rows) {
+            val l = equations[i].andOpLeft.evaluate(solution) xor andOpLeftResults[i]
+            val r = equations[i].andOpRight.evaluate(solution) xor andOpRightResults[i]
+            val x = equations[i].rightXor.evaluate(solution) xor rightXorResults[i]
+            sb.appendLine("(${l.toNumChar()})*(${r.toNumChar()}) = ${x.toNumChar()}")
+            i++
+        }
     }
+
     return sb.toString()
 }
 
