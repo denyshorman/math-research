@@ -29,7 +29,13 @@ class DiophantineEquation(
         val resultIndex = coefficients.size - 1
         var i = 0
         while (i < resultIndex) {
-            sb.append(coefficients[i])
+            if (coefficients[i] < 0) {
+                sb.append('(')
+                sb.append(coefficients[i])
+                sb.append(')')
+            } else {
+                sb.append(coefficients[i])
+            }
             sb.append("*x")
             sb.append(i)
             if (i != resultIndex - 1) sb.append(" + ")
