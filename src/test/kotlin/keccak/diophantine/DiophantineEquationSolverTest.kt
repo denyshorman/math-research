@@ -73,25 +73,103 @@ class DiophantineEquationSolverTest : FunSpec({
             }
         }
     }
-})
 
-fun Array<IntArray>.printGeneralDiophantineSolution() {
-    indices.forEach { i ->
-        val eq = this[i].asSequence()
-            .mapIndexed { index, value -> index to value }
-            .filter { it.second != 0 }
-            .joinToString(" + ") { (i, v) ->
-                if (i == 0) {
-                    v.toString()
-                } else {
-                    if (v < 0) {
-                        "($v)*k${i - 1}"
+    test("printGeneralDiophantineSolution") {
+        val eq = DiophantineEquation(1, 1, 1, 1, 1)
+        val solution = specialDiophantineSolver(eq)
+        solution.printGeneralDiophantineSolution()
+
+        val rnd = Random(1)
+
+        repeat(100) {
+            val k = IntArray(eq.coefficients.size - 1) { rnd.nextInt(-100, 100) }
+            var sum = 0
+
+            var i = 0
+            while (i < solution.size) {
+                var j = 0
+                var sum0 = 0
+                while (j < solution[i].size) {
+                    sum0 += if (j == 0) {
+                        solution[i][j]
                     } else {
-                        "$v*k${i - 1}"
+                        solution[i][j] * k[j - 1]
                     }
+                    j++
                 }
+
+                sum += sum0 * eq.coefficients[i]
+                i++
             }
 
+            sum.shouldBe(eq.coefficients[eq.coefficients.size - 1])
+        }
+    }
+})
+
+private fun IntArray.toDiophantineSolutionString(): String {
+    return this.asSequence()
+        .mapIndexed { index, value -> index to value }
+        .filter { it.second != 0 }
+        .joinToString(" + ") { (i, v) ->
+            if (i == 0) {
+                v.toString()
+            } else {
+                if (v < 0) {
+                    "($v)*k${i - 1}"
+                } else if (v == 1) {
+                    "k${i - 1}"
+                } else {
+                    "$v*k${i - 1}"
+                }
+            }
+        }
+}
+
+private fun Array<IntArray>.printGeneralDiophantineSolution() {
+    indices.forEach { i ->
+        val eq = this[i].toDiophantineSolutionString()
         println("x$i = $eq")
     }
+}
+
+private fun specialDiophantineSolver(equation: DiophantineEquation): Array<IntArray> {
+    val variablesCount = equation.coefficients.size - 1
+
+    val gcds = IntArray(variablesCount) { 0 }
+    gcds[0] = equation.coefficients[0]
+    var i = 1
+    while (i < gcds.size) {
+        gcds[i] = gcd(gcds[i - 1], equation.coefficients[i]).toInt()
+        i++
+    }
+
+    val solution = Array(variablesCount) { IntArray(variablesCount) { 0 } }
+    solution[0][0] = equation.coefficients[variablesCount] / gcds[gcds.size - 1]
+
+    // a0*x0 + a1*x1 + a2*x2 + a3*x3 = a4*gcd(a0,a1,a2,a3)
+
+    // a0*x0 + a1*x1 = y1
+    // y1 + a2*x2 = y0
+    // y0 + a3*x3 = a4
+
+    i = variablesCount - 1
+    while (i > 0) {
+        //val (_, x0, x1) = gcdExtendedEuclid(gcds[i - 1], equation.coefficients[i])
+        val (x0, x1) = 1 to 0
+
+        solution[0].copyInto(solution[i])
+
+        (0 until variablesCount).forEach { j ->
+            solution[0][j] *= x0
+            solution[i][j] *= x1
+        }
+
+        solution[0][i] = equation.coefficients[i]
+        solution[i][i] = -gcds[i - 1]
+
+        i--
+    }
+
+    return solution
 }
