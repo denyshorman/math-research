@@ -463,6 +463,39 @@ class XorEquationSystem {
         return system
     }
 
+    fun solutions(): Sequence<BitSet> {
+        val solution = BitSet(cols)
+        val notExpressedVarsCount = varEqMap.count { it == -1 }
+        val iter = CombinationIteratorSimple(notExpressedVarsCount)
+
+        return sequence {
+            iter.iterateAll {
+                var i = 0
+                var j = 0
+                while (i < varEqMap.size) {
+                    if (varEqMap[i] == -1) {
+                        solution.setIfTrue(i, iter.combination[j++])
+                    }
+                    i++
+                }
+
+                i = 0
+                while (i < varEqMap.size) {
+                    if (varEqMap[i] != -1) {
+                        val eqIndex = varEqMap[i]
+                        val res = equations[eqIndex].evaluate(solution) xor results[eqIndex]
+                        solution.setIfTrue(i, res)
+                    }
+                    i++
+                }
+
+                yield(solution)
+
+                solution.clear()
+            }
+        }
+    }
+
     fun clear() {
         var i = 0
         while (i < equations.size) {

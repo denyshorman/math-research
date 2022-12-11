@@ -444,4 +444,39 @@ class XorEquationSystemTest : FunSpec({
             randomSystemSolvedActual.shouldBe(randomSystemSolvedExpected)
         }
     }
+
+    context("solutions") {
+        test("1") {
+            val system = XorEquationSystem(
+                rows = 4,
+                cols = 6,
+                humanReadable = true,
+                "x0 = 1",
+                "x1 + x4 = 1",
+                "x2 + x5 = 1",
+                "x3 + x4 + x5 = 1",
+            )
+
+            repeat(4) { i ->
+                system.eqVarMap[i] = i
+                system.varEqMap[i] = i
+            }
+
+            val actualSolutions = system.solutions()
+                .map { it.clone() as BitSet }
+                .map { it.toString(system.cols) }
+                .toList()
+
+            actualSolutions.size.shouldBe(4)
+
+            val expectedSolutions = listOf(
+                "111100",
+                "110001",
+                "101010",
+                "100111",
+            )
+
+            actualSolutions.shouldBe(expectedSolutions)
+        }
+    }
 })
