@@ -28,11 +28,18 @@ fun XorEquationSystem(rows: Int, cols: Int, humanReadable: Boolean, vararg equat
 fun XorEquationSystem.toHumanString(
     varPrefix: String = "x",
     varOffset: Int = 0,
+    varIndexStringSize: Int = 0,
 ): String {
     val sb = StringBuilder()
     var i = 0
     while (i < rows) {
-        val eq = equations[i].toXorString(freeBit = false, varPrefix, varOffset, expressVarIndex = eqVarMap[i])
+        val eq = equations[i].toXorString(
+            freeBit = false,
+            varPrefix,
+            varOffset,
+            varIndexStringSize,
+            expressVarIndex = eqVarMap[i],
+        )
         val res = results[i].toNumChar()
         sb.appendLine("$eq = $res")
         i++

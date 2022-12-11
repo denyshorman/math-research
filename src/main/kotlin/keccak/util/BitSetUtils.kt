@@ -215,12 +215,21 @@ fun BitSet.toVarsList(
     freeBit: Boolean = false,
     varPrefix: String = "x",
     varOffset: Int = 0,
+    varIndexStringSize: Int = 0,
     expressVarIndex: Int? = null,
 ): MutableList<String> {
     val vars = LinkedList<String>()
 
     iterateOverAllSetBits { bitIndex ->
-        val varName = "$varPrefix${bitIndex + varOffset}"
+        val varIndex = bitIndex + varOffset
+        val varIndexStr = run {
+            var num = varIndex.toString()
+            if (varIndexStringSize > 0) {
+                num = num.padStart(varIndexStringSize, '0')
+            }
+            num
+        }
+        val varName = "$varPrefix$varIndexStr"
 
         if (expressVarIndex != null && expressVarIndex == bitIndex) {
             vars.addFirst(varName)
@@ -240,6 +249,7 @@ fun BitSet.toXorString(
     freeBit: Boolean = false,
     varPrefix: String = "x",
     varOffset: Int = 0,
+    varIndexStringSize: Int = 0,
     expressVarIndex: Int? = null,
     defaultIfEmpty: String = "0",
 ): String {
@@ -247,7 +257,7 @@ fun BitSet.toXorString(
         return if (freeBit) freeBit.toNumChar().toString() else defaultIfEmpty
     }
 
-    return toVarsList(freeBit, varPrefix, varOffset, expressVarIndex)
+    return toVarsList(freeBit, varPrefix, varOffset, varIndexStringSize, expressVarIndex)
         .joinToString(separator = " + ")
 }
 
