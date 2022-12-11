@@ -356,12 +356,12 @@ class XorEquationSystem {
 
     fun substitute(other: XorEquationSystem) {
         var i = 0
-        while (i < other.rows) {
-            if (!other.equations[i].isEmpty) {
-                val firstVarIndex = other.equations[i].nextSetBit(0)
+        while (i < other.eqVarMap.size) {
+            val expressedVarIndex = other.eqVarMap[i]
+            if (expressedVarIndex != -1) {
                 var j = 0
                 while (j < this.rows) {
-                    if (!this.equations[j].isEmpty && this.equations[j][firstVarIndex]) {
+                    if (!this.equations[j].isEmpty && this.equations[j][expressedVarIndex]) {
                         this.equations[j].xor(other.equations[i])
                         this.results.xor(j, other.results[i])
                     }
