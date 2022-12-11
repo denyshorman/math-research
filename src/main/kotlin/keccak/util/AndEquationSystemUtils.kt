@@ -395,3 +395,32 @@ fun AndEquationSystem.rotate(solution: BitSet, left: Boolean, right: Boolean) {
         i++
     }
 }
+
+fun AndEquationSystem.toSumXor(): XorEquationSystem {
+    val xorSystem = XorEquationSystem(rows * 4, cols)
+
+    var i = 0
+    var j = 0
+
+    while (i < rows) {
+        xorSystem.equations[j].xor(equations[i].rightXor)
+        xorSystem.results.setIfTrue(j, rightXorResults[i])
+        j++
+        xorSystem.equations[j].xor(equations[i].andOpLeft)
+        xorSystem.equations[j].xor(equations[i].rightXor)
+        xorSystem.results.setIfTrue(j, andOpLeftResults[i] xor rightXorResults[i])
+        j++
+        xorSystem.equations[j].xor(equations[i].andOpRight)
+        xorSystem.equations[j].xor(equations[i].rightXor)
+        xorSystem.results.setIfTrue(j, andOpRightResults[i] xor rightXorResults[i])
+        j++
+        xorSystem.equations[j].xor(equations[i].andOpLeft)
+        xorSystem.equations[j].xor(equations[i].andOpRight)
+        xorSystem.equations[j].xor(equations[i].rightXor)
+        xorSystem.results.setIfTrue(j, andOpLeftResults[i] xor andOpRightResults[i] xor rightXorResults[i] xor true)
+        j++
+        i++
+    }
+
+    return xorSystem
+}
