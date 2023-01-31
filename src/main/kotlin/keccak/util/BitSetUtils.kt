@@ -289,6 +289,10 @@ fun BitSet.toByteArray(bytesCount: Int): ByteArray {
     return bytes
 }
 
+fun BitSet.toBooleanArray(size: Int): BooleanArray {
+    return BooleanArray(size) { this[it] }
+}
+
 fun bitSet(vararg bits: Boolean): BitSet {
     val bitSet = BitSet(bits.size)
     var i = 0

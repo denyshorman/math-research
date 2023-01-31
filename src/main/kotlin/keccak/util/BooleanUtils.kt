@@ -93,6 +93,16 @@ fun BooleanArray.toNode(varPrefix: String = "x", varIndexOffset: Int = 0): Node 
     return And(terms).simplify()
 }
 
+fun BooleanArray.toBitSet(): BitSet {
+    val bitSet = BitSet(size)
+    var i = 0
+    while (i < size) {
+        bitSet.setIfTrue(i, this[i])
+        i++
+    }
+    return bitSet
+}
+
 operator fun Boolean.plus(other: Boolean) = this xor other
 
 operator fun Boolean.times(other: Boolean) = this && other
