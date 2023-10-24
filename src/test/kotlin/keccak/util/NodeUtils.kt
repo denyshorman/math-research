@@ -176,6 +176,33 @@ fun areCompatible(
     return compatible
 }
 
+fun Node.isXorCompatible(
+    varPrefix: String = "x",
+    varsCount: Int = countVariables(varPrefix),
+): Boolean {
+    val node = this
+    val nodeExpanded = node.expand().simplify()
+    val xorIter = CombinationIterator(varsCount)
+
+    sequenceOf(false, true).forEach { freeBit ->
+        xorIter.iterateAll {
+            if (xorIter.combination.isEmpty) {
+                return@iterateAll
+            }
+
+            val xorNode = xorIter.combination.toNode(freeBit, varPrefix)
+            val xorNodeMultiple = (xorNode * nodeExpanded).expand().simplify()
+            val xorCompatible = xorNodeMultiple == nodeExpanded
+
+            if (xorCompatible) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
 fun compatibilityDifference(
     interpolation: Node,
     expected: Node,
