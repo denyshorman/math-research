@@ -176,7 +176,7 @@ class NodeEquationSystem {
                     return@iterateOverAllSetBits
                 }
 
-                val node = equations[eqIndex].firstNode()!!
+                val node = equations[eqIndex].firstNode() ?: return@iterateOverAllSetBits
                 val expressed = expressNode(eqIndex, node, activeRows, validateEquation)
                 if (!expressed) return false
             }
