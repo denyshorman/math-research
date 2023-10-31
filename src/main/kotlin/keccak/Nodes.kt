@@ -686,4 +686,29 @@ fun Node.isSimpleNode(): Boolean {
         is Xor -> nodes.all { it.isSimpleNode() }
     }
 }
+
+fun Node.dotProduct(other: Node): Node {
+    return when (this) {
+        is Bit, is Variable, is And -> this * other
+        is Xor -> {
+            if (other is Xor && other.nodes.size == nodes.size) {
+                Xor(nodes.asSequence().zip(other.nodes.asSequence()).map { (l, r) -> l * r })
+            } else {
+                throw IllegalStateException("Must be xor node with same size")
+            }
+        }
+    }
+}
+
+fun Node.dotProduct(varName: String = "a", varIndex: Int = 0): Node {
+    return when (this) {
+        is Bit, is Variable, is And -> this * Variable("$varName$varIndex")
+        is Xor -> {
+            val dot = nodes.asSequence()
+                .zip(nodes.indices.asSequence().map { Variable("$varName${it + varIndex}") })
+                .map { (l, r) -> l * r }
+            Xor(dot)
+        }
+    }
+}
 //#endregion
