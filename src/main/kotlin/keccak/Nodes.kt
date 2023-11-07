@@ -679,6 +679,23 @@ fun Node.maxVariables(varPrefix: String = "x"): Int {
     return maxIndex() + 1
 }
 
+fun Node.variables(): Set<Variable> {
+    val variables = HashSet<Variable>()
+
+    fun Node.findVariables() {
+        when (this) {
+            is Bit -> {}
+            is Variable -> variables.add(this)
+            is And -> nodes.forEach { it.findVariables() }
+            is Xor -> nodes.forEach { it.findVariables() }
+        }
+    }
+
+    findVariables()
+
+    return variables
+}
+
 fun Node.isSimpleNode(): Boolean {
     return when (this) {
         is Bit, is Variable -> true
