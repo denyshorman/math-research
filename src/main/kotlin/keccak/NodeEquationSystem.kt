@@ -145,6 +145,10 @@ class NodeEquationSystem {
             }
 
             if (node != null) {
+                if (!skipValidation && isInvalid(eqIndex)) {
+                    return false
+                }
+
                 val expressed = expressNode(eqIndex, node, activeRows, validateEquation)
                 if (!expressed) return false
             }
@@ -177,6 +181,11 @@ class NodeEquationSystem {
                 }
 
                 val node = equations[eqIndex].firstNode() ?: return@iterateOverAllSetBits
+
+                if (!skipValidation && isInvalid(eqIndex)) {
+                    return false
+                }
+
                 val expressed = expressNode(eqIndex, node, activeRows, validateEquation)
                 if (!expressed) return false
             }
