@@ -36,8 +36,8 @@ value class Bit(val value: Boolean = false) : Node {
 
 @JvmInline
 value class Variable(val name: String) : Node {
-    val prefix: Int get() {
-        return VarPattern.matchEntire(name)?.groups?.get(1)?.value?.toInt()
+    val prefix: String get() {
+        return VarPattern.matchEntire(name)?.groups?.get(1)?.value
             ?: throw Exception("Variable prefix is not defined")
     }
 
@@ -59,7 +59,7 @@ value class Variable(val name: String) : Node {
     }
 
     companion object {
-        private val VarPattern = """^([a-zA-Z]+)(\d+)$""".toRegex()
+        private val VarPattern = """^([a-zA-Z_]+)(\d+)$""".toRegex()
     }
 }
 
