@@ -182,6 +182,11 @@ fun Node.isXorCompatible(
 ): Boolean {
     val node = this
     val nodeExpanded = node.expand().simplify()
+
+    if (nodeExpanded is Bit || nodeExpanded is Variable) {
+        return true
+    }
+
     val xorIter = CombinationIterator(varsCount)
 
     sequenceOf(false, true).forEach { freeBit ->
@@ -201,6 +206,93 @@ fun Node.isXorCompatible(
     }
 
     return false
+}
+
+fun Node.express(variable: Variable, availableVars: Set<Variable>? = null, patternVarPrefix: String = "s"): Node? {
+    val node = this
+    val nodeExpanded = node.expand().simplify()
+    val nodeVariables = availableVars ?: nodeExpanded.variables()
+
+    if (!nodeVariables.contains(variable)) {
+        return null
+    }
+
+    val varPrefix = variable.prefix
+
+    val funcTerms = Xor(
+        And(
+            nodeVariables.asSequence()
+                .filter { it != variable }
+                .map { it + t }
+                .ifEmpty { sequenceOf(t) }
+        )
+            .expand()
+            .dotProduct(patternVarPrefix)
+            .simplify()
+    )
+
+    val multFunc = variable + funcTerms + t
+
+    val system = NodeEquationSystem((multFunc * nodeExpanded).expand().groupBy(varPrefix).groups(varPrefix).values.toTypedArray())
+
+    val solved = system.solve(
+        priorityNodes = funcTerms.nodes.indices.asSequence().map { Variable("$patternVarPrefix$it") }.toList(),
+    )
+
+    return if (solved) {
+        var funcTermsX: Node = funcTerms
+
+        system.nodeEqMap.forEach { (varNode, eqIdx) ->
+            val varNameX = (varNode as Variable).name
+            funcTermsX = funcTermsX.substitute(varNameX, system.equations[eqIdx].substitute(varNameX, Bit(false)))
+        }
+
+        (variable + funcTermsX).cleanup().simplify()
+    } else {
+        null
+    }
+}
+
+fun Node.multiplyPattern(variables: Set<Variable>, patternVarPrefix: String = "s"): Node? {
+    if (variables.isEmpty()) {
+        return null
+    }
+
+    val node = this
+    val nodeExpanded = node.expand().simplify()
+
+    val funcTerms = Xor(
+        And(
+            variables.asSequence()
+                .map { it + t }
+                .ifEmpty { sequenceOf(t) }
+        )
+            .expand()
+            .dotProduct(patternVarPrefix)
+            .simplify()
+    )
+
+    val multFunc = funcTerms + t
+    val varPrefix = variables.first().prefix
+
+    val system = NodeEquationSystem((multFunc * nodeExpanded).expand().groupBy(varPrefix).groups(varPrefix).values.toTypedArray())
+
+    val solved = system.solve(
+        priorityNodes = funcTerms.nodes.indices.asSequence().map { Variable("$patternVarPrefix$it") }.toList(),
+    )
+
+    return if (solved) {
+        var funcTermsX: Node = funcTerms
+
+        system.nodeEqMap.forEach { (varNode, eqIdx) ->
+            val varNameX = (varNode as Variable).name
+            funcTermsX = funcTermsX.substitute(varNameX, system.equations[eqIdx].substitute(varNameX, Bit(false)))
+        }
+
+        (funcTermsX).cleanup().simplify()
+    } else {
+        null
+    }
 }
 
 fun compatibilityDifference(

@@ -1,7 +1,10 @@
 package keccak.util
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import keccak.XorEquation
+import keccak.plus
+import keccak.times
 import kotlin.test.assertEquals
 
 class UtilsTest : FunSpec({
@@ -67,6 +70,24 @@ class UtilsTest : FunSpec({
 
             val newSystem = eqSystem.additionalEqToBitSystem(varsCount, 0)
             assertEquals("100100|1", newSystem.toString())
+        }
+    }
+
+    context("nodeExpressVariable") {
+        test("1") {
+            x0.express(x0).shouldBe(x0)
+            ((x0*x1 + t)*(x1 + t)).express(x1).shouldBe(x1 + t)
+            ((x0*x1 + t)*(x1 + t)).express(x0).shouldBe(null)
+
+            (
+                (x5 + (x3)*(x4 + t) + x0 + t)*
+                (x6 + (x4)*(x0 + t) + x1 + t)*
+                (x7 + (x0)*(x1 + t) + x2 + t)*
+                (x8 + (x1)*(x2 + t) + x3 + t)*
+                (x9 + (x2)*(x3 + t) + x4 + t)
+            )
+                .express(x0, setOf(x0,x5,x6,x7,x8,x9))
+                .shouldBe(x0 + x5 + x6 + x8 + x6*x7 + x6*x9 + x8*x9 + x6*x7*x9 + t)
         }
     }
 })
