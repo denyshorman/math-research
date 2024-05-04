@@ -85,4 +85,19 @@ class MathUtilsTest : FunSpec({
             equationSum.shouldBe(expectedGcd)
         }
     }
+
+    test("linearEquationSystemSolve") {
+        val a = arrayOf(
+            doubleArrayOf(2.0, 3.0, 1.0),
+            doubleArrayOf(1.0, 2.0, 3.0),
+            doubleArrayOf(3.0, 1.0, 2.0),
+        )
+
+        val b = doubleArrayOf(1.0, 2.0, 3.0)
+
+        //solveLinearEquationSystem(a, b)
+
+        println(a.printMatrix())
+        println(b.asSequence().joinToString(" "))
+    }
 })

@@ -1,12 +1,21 @@
-package keccak
+package keccak.arithmetic.zeroone
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import keccak.*
+import keccak.math.arithmetic.*
+import keccak.math.arithmetic.zeroone.*
 import keccak.util.*
+import keccak.util.x0
+import keccak.util.x1
+import keccak.util.x2
+import keccak.util.x3
+import keccak.util.x4
+import java.math.BigInteger
 import java.util.*
 import kotlin.random.Random
 
-class ArithmeticNodesTest : FunSpec({
+class UtilFunctionsTest : FunSpec({
     context("toSum") {
         test("1") {
             val xor = x0 + x1 + x2
@@ -85,9 +94,9 @@ class ArithmeticNodesTest : FunSpec({
         }
 
         test("3") {
-            val sum = BooleanVariable("x0") + BooleanVariable("x1") +
-                    IntNumber(2) * (-BooleanVariable("x0") - BooleanVariable("x1")) +
-                    IntNumber(-1) * (-BooleanVariable("x0") - BooleanVariable("x1"))
+            val sum = BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE) + BooleanVariable("x1", BooleanVariable.Type.ZERO_ONE) +
+                    IntNumber(2) * (-BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE)) - BooleanVariable("x1", BooleanVariable.Type.ZERO_ONE) +
+                    IntNumber(-1) * (-BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE)) - BooleanVariable("x1", BooleanVariable.Type.ZERO_ONE)
 
             val sum2 = sum.collectTerms()
 
@@ -98,9 +107,9 @@ class ArithmeticNodesTest : FunSpec({
         }
 
         test("4") {
-            val sum = IntNumber(2) * BooleanVariable("x0") * BooleanVariable("x0")
+            val sum = IntNumber(2) * BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE) * BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE)
             val sum2 = sum.collectTerms()
-            val sum3 = IntNumber(2) * BooleanVariable("x0")
+            val sum3 = IntNumber(2) * BooleanVariable("x0", BooleanVariable.Type.ZERO_ONE)
 
             sum2.shouldBe(sum3)
         }
@@ -228,11 +237,11 @@ class ArithmeticNodesTest : FunSpec({
                 val resMul = multiplyNodeExpanded.evaluate(iter.combination)
                 val resSum = sumNodeCompactReduced.evaluate(iter.combination)
 
-                if (resMul == 0) {
+                if (resMul == BigInteger.ZERO) {
                     actualSolutionsMultiply.add(iter.combination.toBitSet())
                 }
 
-                if (resSum == 0) {
+                if (resSum == BigInteger.ZERO) {
                     actualSolutionsSum.add(iter.combination.toBitSet())
                 }
 

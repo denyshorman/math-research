@@ -1,5 +1,6 @@
 package keccak.util
 
+import java.math.BigInteger
 import kotlin.math.absoluteValue
 
 fun pow(a: Int, b: Int): Long {
@@ -30,27 +31,81 @@ fun modPow2(n: Long, p2: Long): Long = n and (p2 - 1)
 
 fun modFast(n: Int, b: Int): Int = if (isPow2(b)) modPow2(n, b) else n % b
 
-fun gcd(a: UInt, b: UInt): UInt {
+fun lcm(a: Int, b: Int): UInt {
+    return (a * b).absoluteValue.toUInt() / gcd(a, b)
+}
+
+fun lcm(a: BigInteger, b: BigInteger): BigInteger {
+    val aa = a.abs()
+    val bb = b.abs()
+    return (aa * bb).divide(gcd(aa, bb))
+}
+
+fun lcm(values: Sequence<Int>): UInt {
+    var lcmValue = 1u
+    for (value in values) {
+        lcmValue = lcm(lcmValue.toInt(), value)
+    }
+    return lcmValue
+}
+
+fun gcd(a: BigInteger, b: BigInteger): BigInteger {
+    var x = a.abs()
+    var y = b.abs()
+
+    if (x == BigInteger.ONE || y == BigInteger.ONE) return BigInteger.ONE
+    if (x == BigInteger.ZERO) return y
+    if (y == BigInteger.ZERO) return x
+
+    var i = 0
+    while (x.or(y).and(BigInteger.ONE) == BigInteger.ZERO) {
+        x = x.shiftRight(1)
+        y = y.shiftRight(1)
+        i++
+    }
+
+    while (x.and(BigInteger.ONE) == BigInteger.ZERO) {
+        x = x.shiftRight(1)
+    }
+
+    do {
+        while (y.and(BigInteger.ONE) == BigInteger.ZERO) {
+            y = y.shiftRight(1)
+        }
+
+        if (x > y) {
+            val tmp = x
+            x = y
+            y = tmp
+        }
+
+        y -= x
+    } while (y != BigInteger.ZERO)
+
+    return x.shiftLeft(i)
+}
+
+fun gcd(a: ULong, b: ULong): ULong {
     var x = a
     var y = b
 
-    if (x == 1u || y == 1u) return 1u
-    if (x == 0u) return y
-    if (y == 0u) return x
+    if (x == 1uL || y == 1uL) return 1uL
+    if (x == 0uL) return y
+    if (y == 0uL) return x
 
     var i = 0
-    while ((x or y) and 1u == 0u) {
+    while ((x or y) and 1uL == 0uL) {
         x = x shr 1
         y = y shr 1
         i++
     }
 
-    while (x and 1u == 0u) {
+    while (x and 1uL == 0uL) {
         x = x shr 1
     }
 
     do {
-        while (y and 1u == 0u) {
+        while (y and 1uL == 0uL) {
             y = y shr 1
         }
 
@@ -61,9 +116,17 @@ fun gcd(a: UInt, b: UInt): UInt {
         }
 
         y -= x
-    } while (y != 0u)
+    } while (y != 0uL)
 
     return x shl i
+}
+
+fun gcd(a: Long, b: Long): ULong {
+    return gcd(a.toULong(), b.toULong())
+}
+
+fun gcd(a: UInt, b: UInt): UInt {
+    return gcd(a.toULong(), b.toULong()).toUInt()
 }
 
 fun gcd(a: Int, b: Int): UInt {
@@ -86,6 +149,25 @@ fun gcd(values: IntArray, length: Int = values.size): UInt {
     while (i < length) {
         gcdValue = gcd(gcdValue, values[i].absoluteValue.toUInt())
         if (gcdValue == 1u) return gcdValue
+        i++
+    }
+
+    return gcdValue
+}
+
+fun gcd(values: LongArray, length: Int = values.size): ULong {
+    var i = 0
+    while (i < length) {
+        if (values[i] == 1L || values[i] == -1L) return 1uL
+        i++
+    }
+
+    var gcdValue = values[0].absoluteValue.toULong()
+
+    i = 1
+    while (i < length) {
+        gcdValue = gcd(gcdValue, values[i].absoluteValue.toULong())
+        if (gcdValue == 1uL) return gcdValue
         i++
     }
 

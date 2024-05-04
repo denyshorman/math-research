@@ -1,6 +1,7 @@
 package keccak.util
 
 import keccak.*
+import java.math.BigInteger
 import kotlin.math.log2
 import kotlin.math.min
 
@@ -174,6 +175,15 @@ fun factorial(n: Long): Long {
     var x = 1L
     var i = n
     while (i >= 2) {
+        x *= i--
+    }
+    return x
+}
+
+fun factorial(n: BigInteger): BigInteger {
+    var x = BigInteger.ONE
+    var i = n
+    while (i >= BigInteger.TWO) {
         x *= i--
     }
     return x
