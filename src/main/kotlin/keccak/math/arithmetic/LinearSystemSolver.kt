@@ -68,7 +68,19 @@ private fun ArithmeticNode.substitute(src: ArithmeticNode, dst: ArithmeticNode):
 private fun getRhs(eqs: Array<ArithmeticNode>, expressNode: ArithmeticNode, i: Int): ArithmeticNode {
     return when (val eq = eqs[i]) {
         is IntNumber, is InverseNumber -> throw IllegalStateException("Can't express numbers")
-        is BooleanVariable, is Multiply -> throw Exception("$eq can't equal to 0")
+        is BooleanVariable -> {
+            when (eq.type) {
+                BooleanVariable.Type.PLUS_MINUS_ONE -> throw Exception("$eq can't equal to 0")
+                else -> IntNumber(0)
+            }
+        }
+        is Multiply -> {
+            if (eq.canEqualZero()) {
+                IntNumber(0)
+            } else {
+                throw Exception("$eq can't equal to 0")
+            }
+        }
         is Sum -> {
             val (l,r) = eq.nodes.partition { it.contains(expressNode) }
 
@@ -87,7 +99,7 @@ private fun getRhs(eqs: Array<ArithmeticNode>, expressNode: ArithmeticNode, i: I
                             else -> throw IllegalStateException()
                         }
                     }
-                else -> throw IllegalStateException()
+                else -> throw IllegalStateException("Equations should come expanded")
             }
 
             Multiply(sequenceOf(IntNumber(-1)) + mult + sequenceOf(Sum(r)))
@@ -104,7 +116,21 @@ private fun ArithmeticNode.multiplyByLcm(): ArithmeticNode {
                 throw IllegalStateException("$this = 0 is incorrect")
             }
         }
-        is InverseNumber, is BooleanVariable, is Multiply -> throw IllegalStateException("$this = 0 is incorrect")
+        is InverseNumber -> throw IllegalStateException("$this = 0 is incorrect")
+        is BooleanVariable -> {
+            if (type == BooleanVariable.Type.PLUS_MINUS_ONE) {
+                throw IllegalStateException("$this = 0 is incorrect")
+            } else {
+                this
+            }
+        }
+        is Multiply -> {
+            if (canEqualZero()) {
+                Multiply(nodes.asSequence().filter { it !is InverseNumber })
+            } else {
+                throw IllegalStateException("$this = 0 is incorrect")
+            }
+        }
         is Sum -> {
             var lcmValue = BigInteger.ONE
 
@@ -146,7 +172,21 @@ private fun ArithmeticNode.divideByGcd(): ArithmeticNode {
                 throw IllegalStateException("$this = 0 is incorrect")
             }
         }
-        is InverseNumber, is BooleanVariable, is Multiply -> throw IllegalStateException("$this = 0 is incorrect")
+        is InverseNumber -> throw IllegalStateException("$this = 0 is incorrect")
+        is BooleanVariable -> {
+            if (type == BooleanVariable.Type.PLUS_MINUS_ONE) {
+                throw IllegalStateException("$this = 0 is incorrect")
+            } else {
+                this
+            }
+        }
+        is Multiply -> {
+            if (canEqualZero()) {
+                Multiply(nodes.asSequence().filter { it !is IntNumber })
+            } else {
+                throw IllegalStateException("$this = 0 is incorrect")
+            }
+        }
         is Sum -> {
             var gcdValue = null as BigInteger?
 
@@ -209,5 +249,12 @@ private fun express(eqs: Array<ArithmeticNode>, expressNode: ArithmeticNode, i: 
             val divided = multiplied.divideByGcd()
             eqs[j] = divided
         }
+    }
+}
+
+private fun Multiply.canEqualZero(): Boolean {
+    return nodes.any {
+        it is BooleanVariable &&
+                (it.type == BooleanVariable.Type.ZERO_ONE || it.type == BooleanVariable.Type.ANY)
     }
 }
