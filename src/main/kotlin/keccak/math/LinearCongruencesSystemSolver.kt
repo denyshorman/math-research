@@ -1,7 +1,7 @@
 package keccak.math
 
 import keccak.util.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.sign

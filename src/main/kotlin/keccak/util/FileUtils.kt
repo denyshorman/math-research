@@ -3,7 +3,7 @@ package keccak.util
 import keccak.AndEquationSystem
 import keccak.XorAndEquationSystem
 import keccak.XorEquationSystem
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.util.*
 

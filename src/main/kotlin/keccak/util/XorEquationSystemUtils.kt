@@ -1,7 +1,7 @@
 package keccak.util
 
 import keccak.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.util.*
 import kotlin.math.ceil

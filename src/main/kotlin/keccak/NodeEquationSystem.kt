@@ -3,7 +3,7 @@ package keccak
 import keccak.util.isPow2
 import keccak.util.iterateOverAllSetBits
 import keccak.util.modPow2
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 import kotlin.collections.set
 

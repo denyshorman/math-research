@@ -4,7 +4,7 @@ import keccak.util.gcd
 import keccak.util.isPow2
 import keccak.util.modPow2
 import keccak.util.nextSetBitDefault
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.sign

@@ -1,7 +1,7 @@
 package keccak.util
 
 import io.kotest.core.spec.style.FunSpec
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 
 class FileUtilsTest : FunSpec({

@@ -1,7 +1,7 @@
 package keccak
 
 import keccak.util.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
 class XorEquationSystem {
