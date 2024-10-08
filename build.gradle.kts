@@ -1,13 +1,21 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.20"
     application
 }
 
-group = "keccak256"
-version = "1.0-SNAPSHOT"
+group = "math-research"
+version = "1.0.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
 }
 
 repositories {
@@ -30,24 +38,6 @@ dependencies {
 }
 
 tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
-        with(kotlinOptions) {
-            jvmTarget = "21"
-
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-Xjsr305=strict",
-                "-opt-in=kotlin.ExperimentalUnsignedTypes",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.ObsoleteCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.FlowPreview",
-                "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
-                "-opt-in=kotlin.time.ExperimentalTime",
-                "-opt-in=kotlin.ExperimentalStdlibApi",
-                "-opt-in=kotlin.experimental.ExperimentalTypeInference"
-            )
-        }
-    }
-
     withType<Test> {
         useJUnitPlatform()
     }
