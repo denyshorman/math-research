@@ -7,7 +7,7 @@ import java.math.BigInteger
 
 fun solveLinearSystem(
     eqs: Array<ArithmeticNode>,
-    expressNodes: Array<ArithmeticNode>,
+    expressNodes: Array<out ArithmeticNode>,
 ): Boolean {
     var i = 0
     for (expressNode in expressNodes) {

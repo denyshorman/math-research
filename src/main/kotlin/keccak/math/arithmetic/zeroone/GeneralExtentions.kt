@@ -4,6 +4,7 @@ import keccak.*
 import keccak.math.arithmetic.*
 import keccak.util.toInt
 import java.math.BigInteger
+import java.util.*
 
 fun Node.replaceXorWithSum(): ArithmeticNode {
     return when (this) {
@@ -78,4 +79,38 @@ fun areEqual(l: ArithmeticNode, r: ArithmeticNode, varsCount: Int): Boolean {
     }
 
     return true
+}
+
+fun ArithmeticNode.allSolutions(xvars: Set<BooleanVariable>? = null): Pair<Set<BooleanVariable>, List<IntNumber>> {
+    val vars = xvars ?: findVars()
+
+    val iter = CombinationIteratorSimple(vars.size)
+    val solutions = LinkedList<IntNumber>()
+
+    iter.iterateAll {
+        val values = vars.asSequence().zip(iter.combination.asSequence().map { IntNumber(if (it) 1 else 0) }).toMap()
+        val solution = IntNumber(evaluate(values))
+
+        solutions.add(solution)
+    }
+
+    return vars to solutions
+}
+
+fun buildExpression(vars: Collection<BooleanVariable>, solutions: Collection<ArithmeticNode>): ArithmeticNode {
+    val combIter = CombinationIteratorSimple(vars.size)
+    val solIterator = solutions.iterator()
+    val sumTerms = LinkedList<ArithmeticNode>()
+
+    combIter.iterateAll {
+        val multTerms = vars.asSequence().zip(combIter.combination.asSequence())
+            .map { (varr, bit) -> if (bit) varr else 1 - varr }
+
+        val multValue = solIterator.next()
+        val mult = Multiply(sequenceOf(multValue) + multTerms)
+
+        sumTerms.add(mult)
+    }
+
+    return Sum(sumTerms)
 }

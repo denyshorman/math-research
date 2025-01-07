@@ -235,6 +235,11 @@ fun ArithmeticNode.collectTerms(): ArithmeticNode {
 
             collectNodes()
 
+            if (inverseNum < BigInteger.ZERO) {
+                num = -num
+                inverseNum = -inverseNum
+            }
+
             val gcdValue = gcd(num, inverseNum)
 
             if (gcdValue != BigInteger.ONE) {
@@ -312,6 +317,137 @@ fun ArithmeticNode.expand(): ArithmeticNode {
     }
 }
 
+fun ArithmeticNode.groupBy(varPrefix: String): ArithmeticNode {
+    return when (this) {
+        is IntNumber, is InverseNumber, is BooleanVariable, is Multiply -> this
+        is Sum -> {
+            val groups = HashMap<Set<BooleanVariable>, LinkedList<ArithmeticNode>>()
+            val others = LinkedList<ArithmeticNode>()
+
+            for (sumTerm in nodes) {
+                val group = LinkedList<BooleanVariable>()
+                val other = LinkedList<ArithmeticNode>()
+
+                when (sumTerm) {
+                    is IntNumber, is InverseNumber -> {
+                        others.add(sumTerm)
+                    }
+                    is BooleanVariable -> {
+                        if (sumTerm.name.startsWith(varPrefix)) {
+                            group.add(sumTerm)
+                        } else {
+                            others.add(sumTerm)
+                        }
+                    }
+                    is Sum -> {
+                        throw IllegalStateException("Sum can't be in Sum")
+                    }
+                    is Multiply -> {
+                        for (multTerm in sumTerm.nodes) {
+                            when (multTerm) {
+                                is IntNumber, is InverseNumber -> {
+                                    other.add(multTerm)
+                                }
+                                is BooleanVariable -> {
+                                    if (multTerm.name.startsWith(varPrefix)) {
+                                        group.add(multTerm)
+                                    } else {
+                                        other.add(multTerm)
+                                    }
+                                }
+                                is Multiply -> {
+                                    throw IllegalStateException("Multiply can't be inside Multiply")
+                                }
+                                is Sum -> {
+                                    other.add(multTerm)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (group.isNotEmpty()) {
+                    groups.compute(group.toSet()) { _, oldValues ->
+                        val newValues = oldValues ?: LinkedList<ArithmeticNode>()
+                        if (other.isNotEmpty()) {
+                            newValues.add(Multiply(other).unwrap())
+                        } else {
+                            newValues.add(IntNumber(1))
+                        }
+                        newValues
+                    }
+                } else if (other.isNotEmpty()) {
+                    others.add(Multiply(other).unwrap())
+                }
+            }
+
+            val sumTerms = LinkedList<ArithmeticNode>()
+
+            groups.forEach { (group, terms) ->
+                val mult = Multiply(group.asSequence() + Sum(terms).unwrap()).unwrap()
+                sumTerms.add(mult)
+            }
+
+            sumTerms.addAll(others)
+
+            Sum(sumTerms).unwrap()
+        }
+    }
+}
+
+fun ArithmeticNode.groups(varPrefix: String): Map<ArithmeticNode, ArithmeticNode> {
+    return when (this) {
+        is IntNumber, is InverseNumber -> emptyMap()
+        is BooleanVariable -> if (name.startsWith(varPrefix)) {
+            mapOf(Pair(this, IntNumber(1)))
+        } else {
+            emptyMap()
+        }
+        is Multiply -> {
+            val matched = LinkedList<ArithmeticNode>()
+            val notMatched = LinkedList<ArithmeticNode>()
+
+            for (node in nodes) {
+                when (node) {
+                    is IntNumber, is InverseNumber -> notMatched.add(node)
+                    is BooleanVariable -> if (node.name.startsWith(varPrefix)) {
+                        matched.add(node)
+                    } else {
+                        notMatched.add(node)
+                    }
+                    is Multiply -> throw IllegalStateException("Multiply can't be inside Multiply")
+                    is Sum -> notMatched.add(node)
+                }
+            }
+
+            if (matched.isEmpty()) {
+                emptyMap()
+            } else {
+                val v = if (notMatched.isEmpty()) {
+                    IntNumber(1)
+                } else {
+                    Multiply(notMatched)
+                }
+
+                mapOf(Pair(Multiply(matched).unwrap(), v.unwrap()))
+            }
+        }
+        is Sum -> {
+            val groupValues = HashMap<ArithmeticNode, ArithmeticNode>()
+
+            for (node in nodes) {
+                val nodeGroups = node.groups(varPrefix)
+
+                for (nodeGroup in nodeGroups) {
+                    groupValues[nodeGroup.key] = nodeGroup.value
+                }
+            }
+
+            groupValues
+        }
+    }
+}
+
 fun ArithmeticNode.evaluate(variables: Map<BooleanVariable, ArithmeticNode>): ArithmeticNode {
     return substitute(variables).expand()
 }
@@ -323,5 +459,14 @@ fun ArithmeticNode.evaluateDouble(variables: Map<BooleanVariable, ArithmeticNode
         is InverseNumber -> BigDecimal.ONE.divide(node.value.toBigDecimal()).toDouble()
         is Multiply -> node.nodes.map { it.evaluateDouble(variables) }.fold(1.0) { l, r -> l * r }
         is Sum -> node.nodes.sumOf { it.evaluateDouble(variables) }
+    }
+}
+
+fun ArithmeticNode.findVars(): Set<BooleanVariable> {
+    return when (this) {
+        is IntNumber, is InverseNumber -> emptySet()
+        is BooleanVariable -> setOf(this)
+        is Sum -> nodes.asSequence().flatMap { it.findVars().asSequence() }.toSet()
+        is Multiply -> nodes.asSequence().flatMap { it.findVars().asSequence() }.toSet()
     }
 }
